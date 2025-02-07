@@ -2,15 +2,10 @@ name: Build and Deploy to GitHub Pages
 
 on:
   push:
-    paths:
-      - "nb-music/**"
-      - "nb-music/package.json"
-      - "nb-music/yarn.lock"
-  pull_request:
-    paths:
-      - "nb-music/**"
-      - "nb-music/package.json"
-      - "nb-music/yarn.lock"
+    branches: ["main"]
+
+  # 这个选项可以使你手动在 Action tab 页面触发工作流
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
