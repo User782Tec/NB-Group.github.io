@@ -56,7 +56,7 @@ jobs:
       # 创建 nb-music 目录并复制构建文件
       - name: Prepare deployment
         run: |
-          mkdir -p nb-music
+          mkdir -p nbmusic
           cp -r nb-music/dist/* nbmusic/
 
       # 上传构建产物
