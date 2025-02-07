@@ -1,0 +1,71 @@
+name: Build and Deploy to GitHub Pages
+
+on:
+  push:
+    paths:
+      - "nb-music/**"
+      - "nb-music/package.json"
+      - "nb-music/yarn.lock"
+  pull_request:
+    paths:
+      - "nb-music/**"
+      - "nb-music/package.json"
+      - "nb-music/yarn.lock"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # 需要写入权限来部署到 GitHub Pages
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache yarn dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('nb-music/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install dependencies
+        working-directory: ./nb-music
+        run: yarn install --frozen-lockfile
+
+      - name: Build
+        working-directory: ./nb-music
+        run: yarn build
+
+      # 配置 GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      # 创建 nb-music 目录并复制构建文件
+      - name: Prepare deployment
+        run: |
+          mkdir -p nb-music
+          cp -r nb-music/dist/* nbmusic/
+
+      # 上传构建产物
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "nbmusic"
+
+      # 部署到 GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
