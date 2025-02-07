@@ -19,10 +19,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Prepare main site content
+        run: |
+          # 创建临时目录存放主站点内容
+          mkdir -p _site
+          # 复制所有文件到 _site，排除 nb-music 目录和一些不需要的文件/目录
+          rsync -av --progress ./ _site/ --exclude nb-music --exclude .git --exclude .github --exclude _site
+
+          echo "Main site content structure:"
+          ls -la _site/
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -60,7 +70,7 @@ jobs:
           # 创建 nbmusic 目录并复制新内容
           mkdir -p _site/nbmusic
           cp -r nb-music/dist/* _site/nbmusic/
-          
+
           echo "Deployment content structure:"
           ls -R _site/
 
@@ -68,7 +78,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '_site'
+          path: "_site"
 
       - name: Deploy to GitHub Pages
         id: deployment
